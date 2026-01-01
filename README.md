@@ -165,18 +165,3 @@ This project provides complete API documentation in Markdown format.
 
 ---
 
-## Demo Video
-
-The demo video covers:
-
-* Architecture walkthrough
-* Multi-tenancy & data isolation
-* Docker-based application startup
-* Tenant, user, project, and task management
-* Role-based access control demonstration
-
----
-
-🎥 **YouTube Demo:** *(Add link here after upload)*
-
----

@@ -1,0 +1,59 @@
+version: "3.9"
+
+services:
+  database:
+    image: postgres:15
+    container_name: database
+    environment:
+      POSTGRES_DB: multi_tenant_saas
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: securepassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    container_name: backend
+    ports:
+      - "5000:5000"
+    environment:
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_NAME: multi_tenant_saas
+      DB_USER: postgres
+      DB_PASSWORD: securepassword
+      JWT_SECRET: super_secret_key
+      JWT_EXPIRES_IN: 24h
+      PORT: 5000
+      NODE_ENV: development
+      FRONTEND_URL: http://frontend:3000
+    depends_on:
+      database:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: http://backend:5000/api
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  db_data:

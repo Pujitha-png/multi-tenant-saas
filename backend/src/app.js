@@ -5,10 +5,25 @@ const app = express();
 // ✅ CORS (works both locally + Docker)
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        "http://localhost:3000",
+        "http://frontend:3000",
+      ];
+
+      // Allow non-browser tools like Postman
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
   })
 );
+
 
 // Parse JSON request bodies
 app.use(express.json());
